@@ -2,12 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { orderService, bookService } from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
 
 const Orders = () => {
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     if (!isAuthenticated()) {
@@ -121,6 +125,73 @@ const Orders = () => {
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  // Action handlers
+  const handleLeaveReview = (order) => {
+    // Navigate to first book's page to leave a review if possible
+    const firstItem = order.items && order.items.length > 0 ? order.items[0] : null;
+    const bookId = firstItem?.book?.bookId || firstItem?.bookId;
+    if (bookId) {
+      navigate(`/books/${bookId}`);
+    } else {
+      window.alert('No book found to review in this order.');
+    }
+  };
+
+  const handleCancelOrder = async (order) => {
+    if (!window.confirm('Are you sure you want to cancel this order?')) return;
+    try {
+      // Attempt to update order status on backend; if not available, update locally
+      // Prefer dedicated cancel endpoint if available
+      try {
+        // try orderService.cancel if implemented
+        if (orderService.cancel) {
+          await orderService.cancel(order.orderId);
+        } else {
+          // fallback: direct API call
+          const api = (await import('../services/api')).default;
+          await api.put(`/orders/cancel/${order.orderId}`);
+        }
+        window.alert('Order cancelled successfully.');
+      } catch (err) {
+        console.warn('Backend cancel failed, updating locally', err);
+        // local fallback: store in localStorage
+        const stored = JSON.parse(localStorage.getItem('snuggleReadOrders') || '[]');
+        const updatedStored = stored.map(o => o.orderId === order.orderId ? { ...o, status: 'cancelled' } : o);
+        localStorage.setItem('snuggleReadOrders', JSON.stringify(updatedStored));
+        window.alert('Order cancelled locally (offline).');
+      }
+      fetchOrders();
+    } catch (error) {
+      console.error('Unable to cancel order', error);
+      window.alert('Unable to cancel order at this time.');
+    }
+  };
+
+  const handleViewDetails = (order) => {
+    setSelectedOrder(order);
+    setShowModal(true);
+  };
+
+  const handleReorder = (order) => {
+    if (!order.items || order.items.length === 0) {
+      window.alert('No items to reorder.');
+      return;
+    }
+    // Add each item back to cart (best-effort mapping)
+    for (const it of order.items) {
+      const bookId = it.book?.bookId || it.bookId;
+      const bookObj = {
+        bookId,
+        title: it.title || it.book?.title || 'Unknown',
+        author: it.author || it.book?.author || 'Unknown',
+        price: it.price || it.book?.price || 0,
+      };
+      addToCart(bookObj, it.quantity || 1);
+    }
+    window.alert('Items added to cart.');
+    navigate('/cart');
   };
 
   if (!isAuthenticated()) {
@@ -251,19 +322,19 @@ const Orders = () => {
                 borderTop: '1px solid #eee'
               }}>
                 {order.status === 'delivered' && (
-                  <button className="btn btn-secondary btn-small">
+                  <button className="btn btn-secondary btn-small" onClick={() => handleLeaveReview(order)}>
                     📋 Leave Review
                   </button>
                 )}
                 {(order.status === 'confirmed' || order.status === 'processing') && (
-                  <button className="btn btn-warning btn-small">
+                  <button className="btn btn-warning btn-small" onClick={() => handleCancelOrder(order)}>
                     ❌ Cancel Order
                   </button>
                 )}
-                <button className="btn btn-secondary btn-small">
+                <button className="btn btn-secondary btn-small" onClick={() => handleViewDetails(order)}>
                   📄 View Details
                 </button>
-                <button className="btn btn-secondary btn-small">
+                <button className="btn btn-secondary btn-small" onClick={() => handleReorder(order)}>
                   🔄 Reorder Items
                 </button>
               </div>
@@ -316,6 +387,32 @@ const Orders = () => {
                 </div>
                 <div>Completed Orders</div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Order Details Modal */}
+      {showModal && selectedOrder && (
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '800px' }}>
+            <h3>Order #{selectedOrder.orderId} Details</h3>
+            <p>Placed: {formatDate(selectedOrder.orderDate)}</p>
+            <div>
+              {selectedOrder.items.map((it, idx) => (
+                <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0', borderBottom: '1px solid #eee' }}>
+                  <div>
+                    <strong>{it.title}</strong>
+                    <div style={{ fontSize: '0.9rem', color: '#7f8c8d' }}>{it.author}</div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div>Qty: {it.quantity}</div>
+                    <div>R{(it.price * it.quantity).toFixed(2)}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginTop: '1rem', textAlign: 'right' }}>
+              <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Close</button>
             </div>
           </div>
         </div>

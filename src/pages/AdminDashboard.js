@@ -176,16 +176,56 @@ const AdminDashboard = () => {
     setLoading(true);
 
     try {
+      // Client-side validation: ensure numeric fields are valid before sending
+      const pages = parseInt(formData.pages, 10);
+      const quantity = parseInt(formData.quantity, 10);
+      const price = parseFloat(formData.price);
+
+      if (!formData.title || !formData.author) {
+        alert('Please provide both title and author.');
+        setLoading(false);
+        return;
+      }
+      if (!formData.genre) {
+        alert('Please select a genre.');
+        setLoading(false);
+        return;
+      }
+      if (!Number.isFinite(pages) || pages <= 0) {
+        alert('Please enter a valid number of pages.');
+        setLoading(false);
+        return;
+      }
+      if (!Number.isFinite(quantity) || quantity < 0) {
+        alert('Please enter a valid quantity (0 or more).');
+        setLoading(false);
+        return;
+      }
+      if (!Number.isFinite(price) || price < 0) {
+        alert('Please enter a valid price (0 or more).');
+        setLoading(false);
+        return;
+      }
+
       const formDataToSend = new FormData();
-      formDataToSend.append('title', formData.title);
-      formDataToSend.append('author', formData.author);
-      formDataToSend.append('pages', parseInt(formData.pages));
-      formDataToSend.append('genre', formData.genre);
-      formDataToSend.append('quantity', parseInt(formData.quantity));
-      formDataToSend.append('price', parseFloat(formData.price));
-      
+      formDataToSend.append('title', String(formData.title));
+      formDataToSend.append('author', String(formData.author));
+      formDataToSend.append('pages', String(pages));
+      formDataToSend.append('genre', String(formData.genre));
+      formDataToSend.append('quantity', String(quantity));
+      formDataToSend.append('price', String(price));
       if (formData.image) {
         formDataToSend.append('image', formData.image);
+      }
+
+      // Debug: log formData entries for inspection in console
+      try {
+        console.log('Prepared FormData to send:');
+        for (let pair of formDataToSend.entries()) {
+          console.log(pair[0]+ ':', pair[1]);
+        }
+      } catch (e) {
+        console.log('Could not enumerate FormData', e);
       }
 
       if (editingBook) {
@@ -209,17 +249,33 @@ const AdminDashboard = () => {
       setShowModal(false);
     } catch (error) {
       console.error('Error saving book:', error);
+      // If server provided a response, surface it to the admin for debugging
       if (error.response) {
-        if (error.response.status === 401) {
+        const status = error.response.status;
+        const statusText = error.response.statusText || '';
+        // Try to extract a helpful message from the response body
+        let body = '';
+        try {
+          body = typeof error.response.data === 'string' ? error.response.data : JSON.stringify(error.response.data);
+        } catch (e) {
+          body = String(error.response.data);
+        }
+
+        if (status === 401) {
           alert('Not authenticated. Please log in as admin.');
           return;
         }
-        if (error.response.status === 403) {
+        if (status === 403) {
           alert('Forbidden. Your account does not have permission to perform this action.');
           return;
         }
+
+        alert(`Error saving book: ${status} ${statusText}\n${body}`);
+        return;
       }
-      alert('Error saving book. See console for details.');
+
+      // Network or other error without response
+      alert(`Error saving book: ${error.message || 'Unknown error'}. See console for details.`);
     } finally {
       setLoading(false);
     }

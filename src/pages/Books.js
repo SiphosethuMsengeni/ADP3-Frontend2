@@ -11,8 +11,12 @@ const Books = () => {
   const [selectedGenre, setSelectedGenre] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('title');
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [uploadingBook, setUploadingBook] = useState(null);
+  const [uploadFile, setUploadFile] = useState(null);
+  const [imageErrors, setImageErrors] = useState({});
   const { addToCart } = useCart();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isAdmin } = useAuth();
   const navigate = useNavigate();
 
   const genres = [
@@ -262,7 +266,23 @@ const Books = () => {
         {filteredBooks.map(book => (
           <div key={book.bookId} className="book-card">
             <div className="book-image">
-              📚 {book.title}
+              {/**
+               * If the backend has stored image content type (or image bytes), request the image
+               * from the API and render it. Fall back to the orange placeholder if no image or
+               * the image fails to load.
+               */}
+              {(book.imageContentType || book.image) && !imageErrors[book.bookId] ? (
+                <img
+                  src={`${api.defaults.baseURL.replace(/\/$/, '')}/book/${book.bookId}/image`}
+                  alt={book.title}
+                  style={{ width: '100%', height: 240, objectFit: 'cover', display: 'block', borderRadius: '8px 8px 0 0' }}
+                  onError={() => setImageErrors(prev => ({ ...prev, [book.bookId]: true }))}
+                />
+              ) : (
+                <div style={{ padding: '2.5rem 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', height: 240 }}>
+                  <span style={{ fontSize: '1.15rem', textAlign: 'center', color: '#fff', display: 'block' }}>📚 {book.title}</span>
+                </div>
+              )}
             </div>
             <div className="book-content">
               <h3 className="book-title">{book.title}</h3>
@@ -300,6 +320,18 @@ const Books = () => {
                 ) : (
                   <button className="btn btn-secondary btn-small" disabled>
                     Out of Stock
+                  </button>
+                )}
+                {isAdmin() && (
+                  <button
+                    className="btn btn-outline btn-small"
+                    onClick={() => {
+                      setUploadingBook(book);
+                      setUploadFile(null);
+                      setShowUploadModal(true);
+                    }}
+                  >
+                    📤 Upload Cover
                   </button>
                 )}
               </div>
@@ -344,6 +376,43 @@ const Books = () => {
             <button className="btn btn-secondary" onClick={() => navigate('/login')}>
               Login
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Upload Cover Modal for students/admins */}
+      {showUploadModal && uploadingBook && isAdmin() && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Upload Cover for "{uploadingBook.title}"</h3>
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              if (!uploadFile) { alert('Please select an image file.'); return; }
+              const fd = new FormData();
+              fd.append('image', uploadFile);
+              try {
+                const res = await api.post(`/book/${uploadingBook.bookId}/upload-image`, fd);
+                alert('Image uploaded successfully.');
+                setShowUploadModal(false);
+                // Refresh books list to show new cover
+                fetchBooks();
+              } catch (err) {
+                console.error('Upload error', err);
+                if (err.response) {
+                  alert(`Upload failed: ${err.response.status} ${err.response.statusText}`);
+                } else {
+                  alert('Upload failed. See console for details.');
+                }
+              }
+            }}>
+              <div className="form-group">
+                <input type="file" accept="image/*" onChange={(e) => setUploadFile(e.target.files[0])} />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+                <button type="button" className="btn" onClick={() => setShowUploadModal(false)}>Cancel</button>
+                <button type="submit" className="btn btn-success">Upload</button>
+              </div>
+            </form>
           </div>
         </div>
       )}

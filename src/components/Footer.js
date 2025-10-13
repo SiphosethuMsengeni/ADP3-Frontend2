@@ -1,8 +1,34 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Footer.css';
+import { contactService } from '../services/api';
 
 const Footer = () => {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState(null);
+
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    setStatus(null);
+    if (!email || !email.includes('@')) {
+      setStatus({ type: 'error', message: 'Please enter a valid email.' });
+      return;
+    }
+    try {
+      await contactService.create({ email, message: 'Newsletter subscription' });
+      setStatus({ type: 'success', message: 'Subscribed — check your inbox!' });
+      setEmail('');
+    } catch (err) {
+      console.warn('Newsletter subscribe failed, saving locally', err);
+      // Fallback: save to localStorage for later sync
+      const subs = JSON.parse(localStorage.getItem('snuggleReadSubscriptions') || '[]');
+      subs.push({ email, timestamp: new Date().toISOString() });
+      localStorage.setItem('snuggleReadSubscriptions', JSON.stringify(subs));
+      setStatus({ type: 'success', message: 'Subscribed locally (offline). We will sync when online.' });
+      setEmail('');
+    }
+  };
+
   return (
     <footer className="site-footer">
       <div className="footer-top">
@@ -38,10 +64,13 @@ const Footer = () => {
           <div className="footer-section newsletter">
             <h5>Stay Updated</h5>
             <p>Get student deals and new arrivals in your inbox.</p>
-            <form className="newsletter-form" onSubmit={(e) => e.preventDefault()}>
-              <input type="email" placeholder="Your university email" aria-label="email" />
-              <button className="btn">Subscribe</button>
+            <form className="newsletter-form" onSubmit={handleSubscribe}>
+              <input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="Your university email" aria-label="email" />
+              <button className="btn" type="submit">Subscribe</button>
             </form>
+            {status && (
+              <div style={{ marginTop: '0.5rem', color: status.type === 'error' ? '#e74c3c' : '#27ae60' }}>{status.message}</div>
+            )}
           </div>
         </div>
       </div>

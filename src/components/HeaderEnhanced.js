@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import './HeaderEnhanced.css';
+import logo from '../assets/logo.svg';
 
 const HeaderEnhanced = () => {
   const { user, logout } = useAuth();
@@ -18,6 +19,7 @@ const HeaderEnhanced = () => {
   ];
 
   const [logoLoaded, setLogoLoaded] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleLogout = () => {
     logout();
@@ -30,6 +32,18 @@ const HeaderEnhanced = () => {
   };
 
   const cartItemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+
+  const handleSearch = (e) => {
+    e?.preventDefault();
+    const q = (searchTerm || '').trim();
+    if (!q) {
+      // If empty, navigate to books list
+      navigate('/books');
+      return;
+    }
+    // encode and navigate with query param
+    navigate(`/books?search=${encodeURIComponent(q)}`);
+  };
 
   return (
     <header className="header-enhanced">
@@ -69,7 +83,7 @@ const HeaderEnhanced = () => {
             <Link to="/" className="logo">
               {logoLoaded && (
                 <img 
-                  src="/logo.png" 
+                  src={logo} 
                   alt="Snuggle Read" 
                   className="logo-img"
                   onError={() => setLogoLoaded(false)}
@@ -128,12 +142,16 @@ const HeaderEnhanced = () => {
 
           <div className="nav-right">
             <div className="search-bar">
-              <input 
-                type="text" 
-                placeholder="Search books..." 
-                className="search-input"
-              />
-              <button className="search-btn">🔍</button>
+                <form onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center' }}>
+                  <input 
+                    type="text" 
+                    placeholder="Search books..." 
+                    className="search-input"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                  <button type="submit" className="search-btn">🔍</button>
+                </form>
             </div>
             {/* If user is admin (store manager), show Add Book button instead of cart */}
             {user?.role && user.role.toUpperCase() === 'ADMIN' ? (

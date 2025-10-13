@@ -2,15 +2,19 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './HomeEnhanced.css';
+import IconBook from '../assets/icons/book.svg';
+import IconCart from '../assets/icons/cart.svg';
+import IconDelivery from '../assets/icons/delivery.svg';
+import IconStar from '../assets/icons/star.svg';
 
 const HomeEnhanced = () => {
   const { user } = useAuth();
 
   const featuredGenres = [
-    { name: 'Academic', icon: '🎓', description: 'Essential textbooks and academic resources' },
-    { name: 'Fiction', icon: '📚', description: 'Captivating stories and novels' },
-    { name: 'Science', icon: '🔬', description: 'Scientific discoveries and research' },
-    { name: 'Technology', icon: '💻', description: 'Latest in tech and programming' }
+    { name: 'Academic', icon: IconBook, description: 'Essential textbooks and academic resources' },
+    { name: 'Fiction', icon: IconBook, description: 'Captivating stories and novels' },
+    { name: 'Science', icon: IconStar, description: 'Scientific discoveries and research' },
+    { name: 'Technology', icon: IconStar, description: 'Latest in tech and programming' }
   ];
 
   const stats = [
@@ -52,15 +56,15 @@ const HomeEnhanced = () => {
                 </div>
                 <div className="hero-features">
                   <div className="feature-item">
-                    <span className="feature-icon">🚚</span>
+                    <img src={IconDelivery} alt="delivery" className="feature-icon" />
                     <span>Free Campus Delivery</span>
                   </div>
                   <div className="feature-item">
-                    <span className="feature-icon">💰</span>
+                    <img src={IconCart} alt="discounts" className="feature-icon" />
                     <span>Student Discounts</span>
                   </div>
                   <div className="feature-item">
-                    <span className="feature-icon">📖</span>
+                    <img src={IconBook} alt="digital" className="feature-icon" />
                     <span>Digital & Physical Books</span>
                   </div>
                 </div>
@@ -82,8 +86,8 @@ const HomeEnhanced = () => {
           </div>
           
           <div className="vision-mission-grid">
-            <div className="vision-card">
-              <div className="card-icon">🔮</div>
+              <div className="vision-card">
+              <div className="card-icon"><img src={IconStar} alt="vision"/></div>
               <h3>Our Vision</h3>
               <p>
                 To be the leading university bookstore that bridges the gap between 
@@ -92,8 +96,8 @@ const HomeEnhanced = () => {
               </p>
             </div>
             
-            <div className="mission-card">
-              <div className="card-icon">🎯</div>
+              <div className="mission-card">
+              <div className="card-icon"><img src={IconStar} alt="mission"/></div>
               <h3>Our Mission</h3>
               <p>
                 We provide a comprehensive e-commerce platform offering academic books, 
@@ -102,15 +106,15 @@ const HomeEnhanced = () => {
               </p>
             </div>
             
-            <div className="values-card">
-              <div className="card-icon">⭐</div>
+              <div className="values-card">
+              <div className="card-icon"><img src={IconStar} alt="values"/></div>
               <h3>Our Values</h3>
               <ul>
-                <li>📚 Academic Excellence</li>
-                <li>🤝 Student-First Service</li>
-                <li>💡 Innovation in Learning</li>
-                <li>🌍 Accessibility for All</li>
-                <li>🔒 Trust & Reliability</li>
+                <li><img src={IconBook} alt="book" className="inline-icon"/> Academic Excellence</li>
+                <li><img src={IconStar} alt="service" className="inline-icon"/> Student-First Service</li>
+                <li><img src={IconStar} alt="innovation" className="inline-icon"/> Innovation in Learning</li>
+                <li><img src={IconStar} alt="access" className="inline-icon"/> Accessibility for All</li>
+                <li><img src={IconStar} alt="trust" className="inline-icon"/> Trust & Reliability</li>
               </ul>
             </div>
           </div>
@@ -127,25 +131,25 @@ const HomeEnhanced = () => {
           
           <div className="specialty-grid">
             <div className="specialty-item">
-              <div className="specialty-icon">🎓</div>
+              <div className="specialty-icon"><img src={IconBook} alt="academic" /></div>
               <h4>University Focused</h4>
               <p>Specifically curated for university students, faculty, and academic institutions with specialized collections for different fields of study.</p>
             </div>
             
             <div className="specialty-item">
-              <div className="specialty-icon">🛒</div>
+              <div className="specialty-icon"><img src={IconCart} alt="easy shopping" /></div>
               <h4>E-Commerce Excellence</h4>
               <p>Seamless online shopping experience with advanced search, filtering, and recommendation systems tailored for academic needs.</p>
             </div>
             
             <div className="specialty-item">
-              <div className="specialty-icon">📍</div>
+              <div className="specialty-icon"><img src={IconDelivery} alt="multi-campus" /></div>
               <h4>Multi-Campus Reach</h4>
               <p>Serving multiple universities and campuses across South Africa with localized inventory and campus-specific collections.</p>
             </div>
             
             <div className="specialty-item">
-              <div className="specialty-icon">💝</div>
+              <div className="specialty-icon"><img src={IconStar} alt="student benefits" /></div>
               <h4>Student Benefits</h4>
               <p>Exclusive student discounts, flexible payment options, textbook rental programs, and special academic pricing.</p>
             </div>
@@ -164,7 +168,7 @@ const HomeEnhanced = () => {
           <div className="genres-grid">
             {featuredGenres.map((genre, index) => (
               <Link to={`/books?genre=${genre.name}`} key={index} className="genre-card">
-                <div className="genre-icon">{genre.icon}</div>
+                <div className="genre-icon"><img src={genre.icon} alt={genre.name} /></div>
                 <h4>{genre.name}</h4>
                 <p>{genre.description}</p>
                 <span className="explore-link">Explore →</span>

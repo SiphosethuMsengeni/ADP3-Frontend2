@@ -127,8 +127,15 @@
   opacity: 0.9;
 }
 
-.feature-icon {
+.feature-icon,
+.feature-icon img,
+.feature-icon svg {
+  /* support both text-icons (fallback) and image/svg icons */
   font-size: 1.2rem;
+  width: 48px;
+  height: 48px;
+  display: inline-block;
+  object-fit: contain;
 }
 
 .hero-image img {
@@ -182,9 +189,15 @@
   transform: translateY(-5px);
 }
 
-.card-icon {
+.card-icon,
+.card-icon img,
+.card-icon svg {
   font-size: 3rem;
+  width: 64px;
+  height: 64px;
+  display: inline-block;
   margin-bottom: 20px;
+  object-fit: contain;
 }
 
 .vision-card h3, .mission-card h3, .values-card h3 {
@@ -228,9 +241,15 @@
   padding: 30px 20px;
 }
 
-.specialty-icon {
+.specialty-icon,
+.specialty-icon img,
+.specialty-icon svg {
   font-size: 3.5rem;
+  width: 72px;
+  height: 72px;
+  display: inline-block;
   margin-bottom: 20px;
+  object-fit: contain;
 }
 
 .specialty-item h4 {
@@ -280,10 +299,26 @@
   color: white;
 }
 
-.genre-icon {
+.genre-icon,
+.genre-icon img,
+.genre-icon svg {
   font-size: 3rem;
+  width: 56px;
+  height: 56px;
   display: block;
-  margin-bottom: 15px;
+  margin: 0 auto 15px auto;
+  object-fit: contain;
+}
+
+/* Inline icon helper for small icons used inside text/buttons */
+.inline-icon,
+.inline-icon img,
+.inline-icon svg {
+  width: 1.2em;
+  height: 1.2em;
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 6px;
 }
 
 .genre-card h4 {

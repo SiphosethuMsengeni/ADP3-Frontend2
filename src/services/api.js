@@ -114,6 +114,7 @@ export const orderService = {
   getByUserId: (userId) => api.get(`/orders/customer/${userId}`),
   create: (orderData, userId) => api.post(`/orders/create?userId=${userId}`, orderData),
   update: (orderData) => api.put('/orders/update', orderData),
+  cancel: (orderId) => api.put(`/orders/cancel/${orderId}`),
   delete: (id) => api.delete(`/orders/delete/${id}`),
 };
 
@@ -151,14 +152,7 @@ export const contactService = {
 
 // Supplier and SupplyOrder APIs removed — backend no longer exposes these resources.
 
-// Supply Line services
-export const supplyLineService = {
-  getAll: () => Promise.reject(new Error('Not implemented')),
-  getById: (id) => api.get(`/line/${id}`),
-  create: (supplyLineData) => api.post('/line/create', supplyLineData),
-  update: (supplyLineData) => api.put('/line/update', supplyLineData),
-  delete: (id) => api.delete(`/line/delete/${id}`),
-};
+// Supply line backend removed; no client service exported.
 
 // Error handler utility
 export const handleAPIError = (error) => {
