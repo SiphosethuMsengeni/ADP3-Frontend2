@@ -1,200 +1,218 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import api from "../services/api";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import './HomeEnhanced.css';
 import IconBook from '../assets/icons/book.svg';
 import IconCart from '../assets/icons/cart.svg';
 import IconDelivery from '../assets/icons/delivery.svg';
 import IconStar from '../assets/icons/star.svg';
+import { useState } from "react";
 
-function Home() {
-  const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+const HomeEnhanced = () => {
+  const { user } = useAuth();
 
-  const [stats, setStats] = useState({
-    totalBooks: 0,
-    totalUsers: 0,
-    genres: 4,
-  });
+  const featuredGenres = [
+    { name: 'Academic', icon: IconBook, description: 'Essential textbooks and academic resources' },
+    { name: 'Fiction', icon: IconBook, description: 'Captivating stories and novels' },
+    { name: 'Science', icon: IconStar, description: 'Scientific discoveries and research' },
+    { name: 'Technology', icon: IconStar, description: 'Latest in tech and programming' }
+  ];
 
-  useEffect(() => {
-    fetchStats();
-  }, []);
+  const stats = [
+    { number: '50,000+', label: 'Books Available' },
+    { number: '25,000+', label: 'Happy Students' },
+    { number: '500+', label: 'Universities Served' },
+    { number: '15+', label: 'Years of Excellence' }
+  ];
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const fetchStats = async () => {
-    try {
-      const booksResponse = await api.get("/book/all");
-      setStats({
-        totalBooks: booksResponse.data?.length || 150,
-        totalUsers: 1250,
-        genres: 4,
-      });
-    } catch (error) {
-      console.error("Error fetching stats:", error);
-      setStats({
-        totalBooks: 150,
-        totalUsers: 1250,
-        genres: 4,
-      });
-    }
-  };
+  const toggleMobileMenu = () => setMobileMenuOpen(open => !open);
 
   return (
-    <div className="container mx-auto px-6 py-10 font-sans">
+    <div className="home-enhanced">
       {/* Hero Section */}
-      <div className="hero bg-gradient-to-r from-orange-100 via-orange-200 to-orange-300 rounded-3xl shadow-lg p-10 flex flex-col md:flex-row items-center justify-between transition-all">
-        <div className="flex flex-col gap-4 md:w-1/2">
-          <div className="flex items-center gap-3 mb-3">
-            <img
-              src="/logo.png"
-              alt="Snuggle Read Logo"
-              className="w-16 h-16 rounded-full shadow-md border-2 border-orange-400"
-            />
-            <h2 className="text-4xl font-extrabold text-orange-800 drop-shadow-sm">
-              Welcome to Snuggle Read
-            </h2>
+      <section className="hero-section">
+        <div className="hero-background">
+          <div className="hero-overlay"></div>
+          <div className="container">
+            <div className="hero-content">
+              <div className="hero-text">
+                <h1 className="hero-title">
+                  Welcome to <span className="brand-highlight">Snuggle Read</span>
+                </h1>
+                <p className="hero-subtitle">
+                  Your Premier University E-Commerce Bookstore
+                </p>
+                <p className="hero-description">Your cozy university bookstore — where learning meets comfort! Discover academic and leisure books to fuel your journey.</p>
+                <div className="hero-actions">
+                  <Link to="/books" className="cta-button primary">
+                    Explore Books
+                  </Link>
+                  {!user && (
+                    <Link to="/register" className="cta-button secondary">
+                      Join Now
+                    </Link>
+                  )}
+                </div>
+                <div className="hero-features">
+                  <div className="feature-item">
+                    <img src={IconDelivery} alt="delivery" className="feature-icon" />
+                    <span>Free Campus Delivery</span>
+                  </div>
+                  <div className="feature-item">
+                    <img src={IconCart} alt="discounts" className="feature-icon" />
+                    <span>Student Discounts</span>
+                  </div>
+                  <div className="feature-item">
+                    <img src={IconBook} alt="digital" className="feature-icon" />
+                    <span>Digital & Physical Books</span>
+                  </div>
+                </div>
+              </div>
+              <div className="hero-image">
+                <img src="/images/hero-books.jpg" alt="University Books" />
+              </div>
+            </div>
           </div>
-          <p className="text-orange-900 text-lg leading-relaxed">
-            Your cozy university bookstore — where learning meets comfort!  
-            Discover academic and leisure books to fuel your journey.
-          </p>
-          <div className="flex gap-3 mt-4">
-            <button
-              className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-2 rounded-xl shadow-md transition-all"
-              onClick={() => navigate("/books")}
-            >
-              Browse Books
-            </button>
-            {!isAuthenticated() && (
-              <button
-                className="bg-white hover:bg-orange-100 text-orange-800 font-semibold px-6 py-2 rounded-xl border border-orange-300 shadow-sm transition-all"
-                onClick={() => navigate("/register")}
-              >
-                Join Snuggle Read
-              </button>
-            )}
+        </div>
+      </section>
+
+      {/* Vision & Mission Section */}
+      <section className="vision-mission-section">
+        <div className="container">
+          <div className="section-header">
+            <h2>About Snuggle Read</h2>
+            <p>Empowering Education Through Knowledge</p>
+          </div>
+          
+          <div className="vision-mission-grid">
+              <div className="vision-card">
+              <div className="card-icon"><img src={IconStar} alt="vision"/></div>
+              <h3>Our Vision</h3>
+              <p>
+                To be the leading university bookstore that bridges the gap between 
+                students and knowledge, making quality educational resources accessible 
+                to every learner across South Africa and beyond.
+              </p>
+            </div>
+            
+              <div className="mission-card">
+              <div className="card-icon"><img src={IconStar} alt="mission"/></div>
+              <h3>Our Mission</h3>
+              <p>
+                We provide a comprehensive e-commerce platform offering academic books, 
+                textbooks, and educational materials to university students, faculty, 
+                and researchers, with exceptional service and competitive prices.
+              </p>
+            </div>
+            
+              <div className="values-card">
+              <div className="card-icon"><img src={IconStar} alt="values"/></div>
+              <h3>Our Values</h3>
+              <ul>
+                <li><img src={IconBook} alt="book" className="inline-icon"/> Academic Excellence</li>
+                <li><img src={IconStar} alt="service" className="inline-icon"/> Student-First Service</li>
+                <li><img src={IconStar} alt="innovation" className="inline-icon"/> Innovation in Learning</li>
+                <li><img src={IconStar} alt="access" className="inline-icon"/> Accessibility for All</li>
+                <li><img src={IconStar} alt="trust" className="inline-icon"/> Trust & Reliability</li>
+              </ul>
+            </div>
           </div>
         </div>
+      </section>
 
-        <img
-          src="/logo.png"
-          alt="Snuggle Read"
-          className="hidden md:block w-52 h-52 object-contain drop-shadow-md"
-        />
-      </div>
-
-      {/* Stats Section */}
-      <div className="stats grid grid-cols-2 md:grid-cols-4 gap-6 mt-10 text-center">
-        <div className="bg-white/70 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-orange-100">
-          <img src={IconBook} alt="books" className="mx-auto w-8 h-8 mb-2" />
-          <div className="text-3xl font-bold text-orange-800">
-            {stats.totalBooks}+
+      {/* What Makes Us Special */}
+      <section className="specialty-section">
+        <div className="container">
+          <div className="section-header">
+            <h2>What Makes Snuggle Read Special?</h2>
+            <p>Your University E-Commerce Bookstore Experience</p>
           </div>
-          <div className="text-orange-700">Books Available</div>
-        </div>
-
-        <div className="bg-white/70 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-orange-100">
-          <img src={IconStar} alt="students" className="mx-auto w-8 h-8 mb-2" />
-          <div className="text-3xl font-bold text-orange-800">
-            {stats.totalUsers}+
+          
+          <div className="specialty-grid">
+            <div className="specialty-item">
+              <div className="specialty-icon"><img src={IconBook} alt="academic" /></div>
+              <h4>University Focused</h4>
+              <p>Specifically curated for university students, faculty, and academic institutions with specialized collections for different fields of study.</p>
+            </div>
+            
+            <div className="specialty-item">
+              <div className="specialty-icon"><img src={IconCart} alt="easy shopping" /></div>
+              <h4>E-Commerce Excellence</h4>
+              <p>Seamless online shopping experience with advanced search, filtering, and recommendation systems tailored for academic needs.</p>
+            </div>
+            
+            <div className="specialty-item">
+              <div className="specialty-icon"><img src={IconDelivery} alt="multi-campus" /></div>
+              <h4>Multi-Campus Reach</h4>
+              <p>Serving multiple universities and campuses across South Africa with localized inventory and campus-specific collections.</p>
+            </div>
+            
+            <div className="specialty-item">
+              <div className="specialty-icon"><img src={IconStar} alt="student benefits" /></div>
+              <h4>Student Benefits</h4>
+              <p>Exclusive student discounts, flexible payment options, textbook rental programs, and special academic pricing.</p>
+            </div>
           </div>
-          <div className="text-orange-700">Happy Students</div>
         </div>
-
-        <div className="bg-white/70 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-orange-100">
-          <img src={IconBook} alt="genres" className="mx-auto w-8 h-8 mb-2" />
-          <div className="text-3xl font-bold text-orange-800">
-            {stats.genres}+
-          </div>
-          <div className="text-orange-700">Book Genres</div>
-        </div>
-
-        <div className="bg-white/70 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-orange-100">
-          <img src={IconDelivery} alt="online" className="mx-auto w-8 h-8 mb-2" />
-          <div className="text-3xl font-bold text-orange-800">24/7</div>
-          <div className="text-orange-700">Online Access</div>
-        </div>
-      </div>
-
-      {/* Features Section */}
-      <div
-        className="grid gap-6 mt-12"
-        style={{
-          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-        }}
-      >
-        <div className="bg-orange-50 p-6 rounded-3xl shadow-md hover:shadow-lg transition">
-          <img src={IconBook} alt="academic" className="w-7 h-7 mb-3" />
-          <h3 className="font-semibold text-lg text-orange-800 mb-2">
-            Academic Excellence
-          </h3>
-          <p className="text-orange-900">
-            Curated academic resources to support your studies and success.
-          </p>
-        </div>
-
-        <div className="bg-orange-50 p-6 rounded-3xl shadow-md hover:shadow-lg transition">
-          <img src={IconCart} alt="easy shopping" className="w-7 h-7 mb-3" />
-          <h3 className="font-semibold text-lg text-orange-800 mb-2">
-            Easy Shopping
-          </h3>
-          <p className="text-orange-900">
-            Simple, secure, and delightful online bookstore experience.
-          </p>
-        </div>
-
-        <div className="bg-orange-50 p-6 rounded-3xl shadow-md hover:shadow-lg transition">
-          <img src={IconBook} alt="diverse genres" className="w-7 h-7 mb-3" />
-          <h3 className="font-semibold text-lg text-orange-800 mb-2">
-            Diverse Genres
-          </h3>
-          <p className="text-orange-900">
-            From academic textbooks to cozy fiction — something for everyone.
-          </p>
-        </div>
-
-        <div className="bg-orange-50 p-6 rounded-3xl shadow-md hover:shadow-lg transition">
-          <img src={IconStar} alt="student-friendly" className="w-7 h-7 mb-3" />
-          <h3 className="font-semibold text-lg text-orange-800 mb-2">
-            Student-Friendly
-          </h3>
-          <p className="text-orange-900">
-            Affordable prices, fast delivery, and student discounts await you.
-          </p>
-        </div>
-      </div>
-
-      {/* Vision & Mission moved to About page */}
+      </section>
 
       {/* Featured Genres */}
-      <div className="bg-orange-50 p-8 rounded-3xl shadow-md mt-12 text-center">
-        <h3 className="text-2xl font-bold text-orange-800 mb-4">
-          Featured Genres
-        </h3>
-        <div className="flex flex-wrap justify-center gap-4 mb-4">
-          {[
-            "Academic Textbooks",
-            "Science & Technology",
-            "Literature & Fiction",
-            "Business & Economics",
-          ].map((genre) => (
-            <div
-              key={genre}
-              className="bg-orange-200 text-orange-900 px-5 py-2 rounded-full text-sm font-semibold shadow-sm hover:bg-orange-300 transition"
-            >
-              {genre}
-            </div>
-          ))}
+      <section className="featured-genres-section">
+        <div className="container">
+          <div className="section-header">
+            <h2>Explore Our Book Categories</h2>
+            <p>Discover knowledge across all disciplines</p>
+          </div>
+          
+          <div className="genres-grid">
+            {featuredGenres.map((genre, index) => (
+              <Link to={`/books?genre=${genre.name}`} key={index} className="genre-card">
+                <div className="genre-icon"><img src={genre.icon} alt={genre.name} /></div>
+                <h4>{genre.name}</h4>
+                <p>{genre.description}</p>
+                <span className="explore-link">Explore →</span>
+              </Link>
+            ))}
+          </div>
         </div>
-        <button
-          className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-xl font-semibold shadow-md transition"
-          onClick={() => navigate("/books")}
-        >
-          Explore All Books
-        </button>
-      </div>
+      </section>
+
+      {/* Statistics Section */}
+      <section className="stats-section">
+        <div className="container">
+          <div className="stats-grid">
+            {stats.map((stat, index) => (
+              <div key={index} className="stat-item">
+                <div className="stat-number">{stat.number}</div>
+                <div className="stat-label">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Call to Action */}
+      <section className="cta-section">
+        <div className="container">
+          <div className="cta-content">
+            <h2>Ready to Start Your Learning Journey?</h2>
+            <p>Join thousands of students who trust Snuggle Read for their academic needs</p>
+            <div className="cta-actions">
+              <Link to="/books" className="cta-button primary large">
+                Browse Books Now
+              </Link>
+              {!user && (
+                <Link to="/register" className="cta-button secondary large">
+                  Create Account
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
-}
+};
 
-export default Home;
+export default HomeEnhanced;
