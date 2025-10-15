@@ -122,64 +122,18 @@ const Home = () => {
       </div>
 
       {/* 🧭 FEATURES SECTION */}
-      <div className="features" style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+      <div className="features" style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
         gap: '2rem',
         marginTop: '3rem'
       }}>
-        <div className="card">
-          <h3>📚 Academic Excellence</h3>
-          <p>Curated collection of textbooks, reference materials, and scholarly resources 
-             to support your academic journey at the university.</p>
-        </div>
 
-        <div className="card">
-          <h3>🛒 Easy Shopping</h3>
-          <p>Seamless online shopping experience with secure cart management and 
-             convenient ordering system for students.</p>
-        </div>
 
-        <div className="card">
-          <h3>📖 Diverse Genres</h3>
-          <p>From academic textbooks to fiction, science, and technology - explore 
-             our extensive collection across multiple genres.</p>
-        </div>
 
-        <div className="card">
-          <h3>🎓 Student-Friendly</h3>
-          <p>Special pricing and deals for university students with quick delivery 
-             and flexible payment options.</p>
-        </div>
       </div>
 
-      {/* 🌍 VISION & MISSION */}
-      <div className="card" style={{ marginTop: '2.5rem' }}>
-        <h3>Our Vision & Mission</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginTop: '1rem' }}>
-          <div>
-            <h4>Vision</h4>
-            <p>
-              To be the leading university e-commerce bookstore that connects students and
-              campus communities with affordable, accessible, and curated academic and leisure
-              reading — empowering learning everywhere on and off campus.
-            </p>
-          </div>
 
-          <div>
-            <h4>Mission</h4>
-            <p>
-              Snuggle Read delivers a student-first online bookstore experience focused on:
-            </p>
-            <ul>
-              <li>Providing affordable textbooks and essential academic resources for university courses.</li>
-              <li>Offering easy online ordering, campus delivery or collection points, and secure payments.</li>
-              <li>Curating selections that support both study and personal growth across disciplines.</li>
-              <li>Supporting students with exclusive discounts, promotions, and helpful customer service.</li>
-            </ul>
-          </div>
-        </div>
-      </div>
 
       {/* 🏷️ GENRES SECTION */}
       <div className="card" style={{ marginTop: '3rem', textAlign: 'center' }}>
