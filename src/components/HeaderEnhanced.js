@@ -3,7 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import './HeaderEnhanced.css';
-import logo from '../assets/logo.svg';
+import BookIcon from './BookIcon';
+
+
+
 
 const HeaderEnhanced = () => {
   const { user, logout } = useAuth();
@@ -19,7 +22,6 @@ const HeaderEnhanced = () => {
   ];
 
   const [logoLoaded, setLogoLoaded] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
 
   const handleLogout = () => {
     logout();
@@ -33,18 +35,6 @@ const HeaderEnhanced = () => {
 
   const cartItemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
-  const handleSearch = (e) => {
-    e?.preventDefault();
-    const q = (searchTerm || '').trim();
-    if (!q) {
-      // If empty, navigate to books list
-      navigate('/books');
-      return;
-    }
-    // encode and navigate with query param
-    navigate(`/books?search=${encodeURIComponent(q)}`);
-  };
-
   return (
     <header className="header-enhanced">
       {/* Top Navigation Bar */}
@@ -56,10 +46,15 @@ const HeaderEnhanced = () => {
             </span>
           </div>
           <div className="top-nav-right">
+            
+             <Link to="/books" className="nav-link browse-link">
+    📘 Browse Books
+  </Link>
             <div className="contact-info">
               <span>📞 +27 21 460 3911</span>
               <span>✉️ info@snuggleread.ac.za</span>
             </div>
+            
             {user ? (
               <div className="user-menu">
                 <span>Welcome, {user.firstName}</span>
@@ -81,14 +76,7 @@ const HeaderEnhanced = () => {
         <div className="container">
           <div className="nav-left">
             <Link to="/" className="logo">
-              {logoLoaded && (
-                <img 
-                  src={logo} 
-                  alt="Snuggle Read" 
-                  className="logo-img"
-                  onError={() => setLogoLoaded(false)}
-                />
-              )}
+              <img src="/BookIcon.png" alt="Snuggle Read Icon" className="book-logo-icon" />
               <span className="logo-text">Snuggle Read</span>
             </Link>
           </div>
@@ -142,16 +130,12 @@ const HeaderEnhanced = () => {
 
           <div className="nav-right">
             <div className="search-bar">
-                <form onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center' }}>
-                  <input 
-                    type="text" 
-                    placeholder="Search books..." 
-                    className="search-input"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                  <button type="submit" className="search-btn">🔍</button>
-                </form>
+              <input 
+                type="text" 
+                placeholder="Search books..." 
+                className="search-input"
+              />
+              <button className="search-btn">🔍</button>
             </div>
             {/* If user is admin (store manager), show Add Book button instead of cart */}
             {user?.role && user.role.toUpperCase() === 'ADMIN' ? (
