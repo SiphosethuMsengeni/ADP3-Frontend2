@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import './HeaderEnhanced.css';
-import BookIcon from './BookIcon';
+
 
 
 
