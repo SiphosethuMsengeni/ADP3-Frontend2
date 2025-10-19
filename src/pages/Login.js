@@ -10,8 +10,7 @@ const Login = () => {
   const [tab, setTab] = useState('shop'); // 'shop' or 'admin'
   const [formData, setFormData] = useState({
     email: '',
-    password: '',
-    userType: 'customer'
+    password: ''
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -58,7 +57,7 @@ const Login = () => {
     setMessage('');
 
     try {
-      const response = await authService.login(formData.email, formData.password, formData.userType);
+      const response = await authService.login(formData.email, formData.password, tab === 'admin' ? 'admin' : 'customer');
 
       // response may be { user, token } or a raw user object (backend returns User)
       const userObj = response.user ? response.user : response;
@@ -69,22 +68,33 @@ const Login = () => {
 
       if (userObj) {
         login(userObj);
-        setMessage('Login successful!');
-
-        setTimeout(() => {
-          if (isAdmin()) {
-            navigate('/admin');
+        
+        // Check if logging in via admin tab
+        if (tab === 'admin') {
+          if (userObj.role && userObj.role.toUpperCase() === 'ADMIN') {
+            setMessage('Admin login successful! Redirecting to dashboard...');
+            setTimeout(() => {
+              navigate('/admin');
+            }, 500);
           } else {
-            navigate('/');
+            setMessage('Invalid admin credentials. Please check your login details.');
           }
-        }, 1000);
+        } else {
+          // Regular customer login
+          setMessage('Login successful!');
+          setTimeout(() => {
+            navigate('/');
+          }, 1000);
+        }
       }
     } catch (error) {
       console.error('Login error (raw):', error);
       // Use shared API error formatter to get a helpful message for the user
-      // If backend returned 401, suggest registering first
+      // Handle different error statuses
       if (error.response && error.response.status === 401) {
         setMessage('Invalid credentials or account not found. Please register first.');
+      } else if (error.response && error.response.status === 403) {
+        setMessage('Admin accounts must use the Admin login tab.');
       } else {
         const friendly = handleAPIError(error);
         setMessage(friendly);

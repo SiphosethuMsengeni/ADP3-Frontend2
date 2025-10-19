@@ -9,45 +9,19 @@ const HeaderEnhanced = () => {
   const { user, logout } = useAuth();
   const { cartItems } = useCart();
   const navigate = useNavigate();
-  const [genreDropdownOpen, setGenreDropdownOpen] = useState(false);
-
-  const genres = [
-    'Fiction', 'Academic', 'Science', 'History', 'Biography', 
-    'Mystery', 'Romance', 'Fantasy', 'Horror', 'Poetry',
-    'Drama', 'Philosophy', 'Psychology', 'Business', 'Technology',
-    'Health', 'Cookbook', 'Travel', 'Children', 'Young Adult'
-  ];
-
+  const [menuOpen, setMenuOpen] = useState(false);
   const [logoLoaded, setLogoLoaded] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
 
   const handleLogout = () => {
     logout();
     navigate('/');
   };
 
-  const handleGenreSelect = (genre) => {
-    navigate(`/books?genre=${genre}`);
-    setGenreDropdownOpen(false);
-  };
-
   const cartItemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
-
-  const handleSearch = (e) => {
-    e?.preventDefault();
-    const q = (searchTerm || '').trim();
-    if (!q) {
-      // If empty, navigate to books list
-      navigate('/books');
-      return;
-    }
-    // encode and navigate with query param
-    navigate(`/books?search=${encodeURIComponent(q)}`);
-  };
 
   return (
     <header className="header-enhanced">
-      {/* Top Navigation Bar */}
+      {/* === Top Navigation Bar === */}
       <div className="top-nav">
         <div className="container">
           <div className="top-nav-left">
@@ -62,8 +36,8 @@ const HeaderEnhanced = () => {
             </div>
             {user ? (
               <div className="user-menu">
-                <span>Welcome, {user.firstName}</span>
-                <Link to="/profile" className="nav-link">Profile</Link>
+                <span>Welcome, {user.userFirstName || user.firstName}</span>
+                <Link to="/profile" className="nav-link">My Account</Link>
                 <button onClick={handleLogout} className="logout-btn">Logout</button>
               </div>
             ) : (
@@ -76,27 +50,37 @@ const HeaderEnhanced = () => {
         </div>
       </div>
 
-      {/* Main Navigation Bar */}
+      {/* === Main Navigation Bar === */}
       <div className="main-nav">
         <div className="container">
           <div className="nav-left">
             <Link to="/" className="logo">
               {logoLoaded && (
-                <img 
-                  src={logo} 
-                  alt="Snuggle Read" 
+                <img
+                  src={logo}
+                  alt="Snuggle Read"
                   className="logo-img"
                   onError={() => setLogoLoaded(false)}
                 />
               )}
               <span className="logo-text">Snuggle Read</span>
             </Link>
+
+            {/* Mobile menu toggle */}
+            <button
+              className={`menu-toggle ${menuOpen ? 'open' : ''}`}
+              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={menuOpen}
+              aria-controls="main-menu"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              <span className="hamburger" />
+            </button>
           </div>
 
           <div className="nav-center">
-            <nav className="main-menu">
+            <nav id="main-menu" className={`main-menu ${menuOpen ? 'open' : ''}`}>
               <Link to="/" className="nav-item">Home</Link>
-              {/* If current user is admin (store manager), show manager links instead of shopper nav */}
               {user?.role && user.role.toUpperCase() === 'ADMIN' ? (
                 <>
                   <Link to="/admin" className="nav-item">Manager Dashboard</Link>
@@ -105,85 +89,33 @@ const HeaderEnhanced = () => {
               ) : (
                 <Link to="/books" className="nav-item">Shop Books</Link>
               )}
-              {/* Genre Dropdown */}
-              <div className="dropdown" onMouseLeave={() => setGenreDropdownOpen(false)}>
-                <button 
-                  className="nav-item dropdown-toggle"
-                  onMouseEnter={() => setGenreDropdownOpen(true)}
-                  onClick={() => setGenreDropdownOpen(!genreDropdownOpen)}
-                >
-                  Genres ▼
-                </button>
-                {genreDropdownOpen && (
-                  <div className="dropdown-menu">
-                    <div className="dropdown-grid">
-                      {genres.map(genre => (
-                        <button
-                          key={genre}
-                          className="dropdown-item"
-                          onClick={() => handleGenreSelect(genre)}
-                        >
-                          {genre}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <Link to="/about" className="nav-item">About</Link>
-              <Link to="/contact" className="nav-item">Contact</Link>
-              
+              <Link to="/about" className="nav-item" onClick={() => setMenuOpen(false)}>About</Link>
+              <Link to="/contact" className="nav-item" onClick={() => setMenuOpen(false)}>Contact</Link>
+              <Link to="/orders" className="nav-item">My Orders</Link>
               {user?.isAdmin && (
-                <Link to="/admin" className="nav-item admin-link">Admin</Link>
+                <Link
+                  to="/admin"
+                  className="nav-item admin-link"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Admin
+                </Link>
               )}
             </nav>
           </div>
 
+          {/* === Cart Icon / Admin Button === */}
           <div className="nav-right">
-            <div className="search-bar">
-                <form onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center' }}>
-                  <input 
-                    type="text" 
-                    placeholder="Search books..." 
-                    className="search-input"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                  <button type="submit" className="search-btn">🔍</button>
-                </form>
-            </div>
-            {/* If user is admin (store manager), show Add Book button instead of cart */}
             {user?.role && user.role.toUpperCase() === 'ADMIN' ? (
-              <Link to="/admin" className="add-book-btn" title="Manager: Add Book">
-                ➕ Add Book
-              </Link>
+              <Link to="/admin" className="add-book-btn" title="Manager: Add Book" />
             ) : (
-              <Link to="/cart" className="cart-link">
+              <Link to="/cart" className="cart-link" title="View Cart">
                 <span className="cart-icon">🛒</span>
                 {cartItemCount > 0 && (
                   <span className="cart-badge">{cartItemCount}</span>
                 )}
               </Link>
             )}
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom Navigation Bar */}
-      <div className="bottom-nav">
-        <div className="container">
-          <div className="quick-links">
-            <Link to="/books?category=new-arrivals" className="quick-link">New Arrivals</Link>
-            <Link to="/books?category=bestsellers" className="quick-link">Best Sellers</Link>
-            <Link to="/books?category=discounted" className="quick-link">Discounted Books</Link>
-            <Link to="/books?category=textbooks" className="quick-link">Textbooks</Link>
-            <Link to="/orders" className="quick-link">My Orders</Link>
-          </div>
-          <div className="announcement">
-            <span className="announcement-text">
-              🎓 Student Discount: 15% off all textbooks! Use code STUDENT15
-            </span>
           </div>
         </div>
       </div>

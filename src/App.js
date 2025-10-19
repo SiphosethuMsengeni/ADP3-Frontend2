@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HeaderEnhanced from './components/HeaderEnhanced';
 import Footer from './components/Footer';
+import ProtectedRoute from './components/ProtectedRoute';
 import Profile from './pages/Profile';
 import Home from './pages/Home';
 import About from './pages/About';
@@ -10,6 +11,7 @@ import Login from './pages/Login';
 import AdminLogin from './pages/AdminLogin';
 import Register from './pages/Register';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminOrders from './pages/AdminOrders';
 import Books from './pages/Books';
 import Cart from './pages/Cart';
 import Orders from './pages/Orders';
@@ -36,7 +38,16 @@ function App() {
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/orders" element={<Orders />} />
                 <Route path="/profile" element={<Profile />} />
-                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin" element={
+                  <ProtectedRoute adminOnly={true}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/orders" element={
+                  <ProtectedRoute adminOnly={true}>
+                    <AdminOrders />
+                  </ProtectedRoute>
+                } />
               </Routes>
             </main>
             <Footer />

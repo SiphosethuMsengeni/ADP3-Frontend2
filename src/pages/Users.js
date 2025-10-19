@@ -20,6 +20,30 @@ const Users = () => {
   });
   const [formErrors, setFormErrors] = useState({});
 
+  // Deactivate user
+  const deactivateUser = async (userId) => {
+    if (window.confirm('Are you sure you want to deactivate this user?')) {
+      try {
+        await api.put(`/users/deactivate/${userId}`);
+        fetchUsers();
+      } catch (error) {
+        alert('Failed to deactivate user');
+      }
+    }
+  };
+
+  // Reactivate user
+  const reactivateUser = async (userId) => {
+    if (window.confirm('Are you sure you want to reactivate this user?')) {
+      try {
+        await api.put(`/users/reactivate/${userId}`);
+        fetchUsers();
+      } catch (error) {
+        alert('Failed to reactivate user');
+      }
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -272,6 +296,7 @@ const Users = () => {
               <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '2px solid #ddd' }}>Email</th>
               <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '2px solid #ddd' }}>Phone</th>
               <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '2px solid #ddd' }}>Address</th>
+              <th style={{ padding: '1rem', textAlign: 'center', borderBottom: '2px solid #ddd' }}>Active</th>
               <th style={{ padding: '1rem', textAlign: 'center', borderBottom: '2px solid #ddd' }}>Actions</th>
             </tr>
           </thead>
@@ -284,6 +309,13 @@ const Users = () => {
                 <td style={{ padding: '1rem' }}>{user.userEmail}</td>
                 <td style={{ padding: '1rem' }}>{user.userPhoneNumber}</td>
                 <td style={{ padding: '1rem' }}>{user.contact?.address || 'N/A'}</td>
+                <td style={{ padding: '1rem', textAlign: 'center' }}>
+                  {user.active ? (
+                    <span style={{ color: 'green', fontWeight: 'bold' }}>Active</span>
+                  ) : (
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>Inactive</span>
+                  )}
+                </td>
                 <td style={{ padding: '1rem', textAlign: 'center' }}>
                   <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
                     <button 
@@ -311,6 +343,23 @@ const Users = () => {
                     >
                       Delete
                     </button>
+                    {user.active ? (
+                      <button
+                        className="btn"
+                        style={{ backgroundColor: '#ffc107', color: '#333', fontSize: '0.8rem', padding: '0.3rem 0.6rem' }}
+                        onClick={() => deactivateUser(user.userId)}
+                      >
+                        Deactivate
+                      </button>
+                    ) : (
+                      <button
+                        className="btn"
+                        style={{ backgroundColor: '#28a745', color: '#fff', fontSize: '0.8rem', padding: '0.3rem 0.6rem' }}
+                        onClick={() => reactivateUser(user.userId)}
+                      >
+                        Reactivate
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>

@@ -42,85 +42,16 @@ const Books = () => {
   const fetchBooks = async () => {
     try {
       setLoading(true);
-  const response = await api.get('/book/all');
-  setBooks(response.data || []);
+  const response = await api.get('/api/book/all');
+      console.log('Books API response:', response);
+      setBooks(response.data || []);
     } catch (error) {
-      console.error('Error fetching books:', error);
-      // Demo data for development
-      setBooks([
-        {
-          bookId: 1,
-          title: 'Introduction to Computer Science',
-          author: 'John Smith',
-          pages: 450,
-          genre: 'Academic Textbooks',
-          quantity: 25,
-          price: 599.99
-        },
-        {
-          bookId: 2,
-          title: 'Data Structures and Algorithms',
-          author: 'Jane Doe',
-          pages: 680,
-          genre: 'Science & Technology',
-          quantity: 15,
-          price: 749.99
-        },
-        {
-          bookId: 3,
-          title: 'Pride and Prejudice',
-          author: 'Jane Austen',
-          pages: 432,
-          genre: 'Literature & Fiction',
-          quantity: 20,
-          price: 299.99
-        },
-        {
-          bookId: 4,
-          title: 'Business Strategy Essentials',
-          author: 'Michael Porter',
-          pages: 520,
-          genre: 'Business & Economics',
-          quantity: 12,
-          price: 899.99
-        },
-        {
-          bookId: 5,
-          title: 'World History: A Global Perspective',
-          author: 'William Henderson',
-          pages: 780,
-          genre: 'History & Politics',
-          quantity: 8,
-          price: 1299.99
-        },
-        {
-          bookId: 6,
-          title: 'Digital Art Fundamentals',
-          author: 'Sarah Chen',
-          pages: 320,
-          genre: 'Arts & Culture',
-          quantity: 18,
-          price: 649.99
-        },
-        {
-          bookId: 7,
-          title: 'Calculus: Early Transcendentals',
-          author: 'James Stewart',
-          pages: 1344,
-          genre: 'Academic Textbooks',
-          quantity: 30,
-          price: 1599.99
-        },
-        {
-          bookId: 8,
-          title: 'Machine Learning Fundamentals',
-          author: 'Andrew Chen',
-          pages: 520,
-          genre: 'Science & Technology',
-          quantity: 22,
-          price: 999.99
-        }
-      ]);
+      if (error.response) {
+        console.error('Books API error:', error.response.status, error.response.data);
+      } else {
+        console.error('Network or unknown error fetching books:', error);
+      }
+      setBooks([]);
     } finally {
       setLoading(false);
     }
@@ -271,9 +202,9 @@ const Books = () => {
                * from the API and render it. Fall back to the orange placeholder if no image or
                * the image fails to load.
                */}
-              {(book.imageContentType || book.image) && !imageErrors[book.bookId] ? (
+              {book.imageContentType && !imageErrors[book.bookId] ? (
                 <img
-                  src={`${api.defaults.baseURL.replace(/\/$/, '')}/book/${book.bookId}/image`}
+                  src={`${api.defaults.baseURL.replace(/\/$/, '')}/api/book/${book.bookId}/image`}
                   alt={book.title}
                   style={{ width: '100%', height: 240, objectFit: 'cover', display: 'block', borderRadius: '8px 8px 0 0' }}
                   onError={() => setImageErrors(prev => ({ ...prev, [book.bookId]: true }))}
@@ -391,7 +322,7 @@ const Books = () => {
               const fd = new FormData();
               fd.append('image', uploadFile);
               try {
-                const res = await api.post(`/book/${uploadingBook.bookId}/upload-image`, fd);
+                const res = await api.post(`/api/book/${uploadingBook.bookId}/upload-image`, fd);
                 alert('Image uploaded successfully.');
                 setShowUploadModal(false);
                 // Refresh books list to show new cover

@@ -75,14 +75,8 @@ export const CartProvider = ({ children }) => {
     return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
   };
 
-  const getStudentDiscount = () => {
-    return cartItems.reduce((total, item) => total + (item.price * 0.05 * item.quantity), 0);
-  };
-
   const getDiscountedTotal = (userType = 'customer') => {
-    const subtotal = getCartSubtotal();
-    const discount = userType === 'customer' ? getStudentDiscount() : 0;
-    return subtotal - discount;
+    return getCartSubtotal();
   };
 
   const getShippingCost = (userType = 'customer') => {
@@ -110,7 +104,6 @@ export const CartProvider = ({ children }) => {
     clearCart,
     getCartTotal,
     getCartSubtotal,
-    getStudentDiscount,
     getDiscountedTotal,
     getShippingCost,
     getFinalTotal,

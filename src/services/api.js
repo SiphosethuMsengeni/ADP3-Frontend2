@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Base URL configuration
-const API_BASE_URL = '/bookstore/api';
+const API_BASE_URL = 'http://localhost:8081/bookstore';
 
 // Create axios instance with default config (do NOT force Content-Type globally)
 const api = axios.create({
@@ -50,12 +50,17 @@ api.interceptors.response.use(
 export const authService = {
   login: async (email, password, userType = 'customer') => {
     try {
-      // Call backend API for authentication
-      // backend exposes user login at POST /bookstore/api/users/login
-      const response = await api.post('/users/login', { email, password, userType });
-      // backend returns { user, token }
+      let response;
+      console.log(`Attempting ${userType} login for ${email}`);
+      console.log('Login request payload:', { email, password: '***' });
+      
+      if (userType === 'admin') {
+        response = await api.post('/auth/login', { email, password });
+      } else {
+        response = await api.post('/api/users/login', { email, password });
+      }
+      console.log('Login API response:', response.data);
       const payload = response.data;
-      // persist user+token for convenience
       if (payload.token) {
         localStorage.setItem('authToken', payload.token);
       }
@@ -64,6 +69,10 @@ export const authService = {
       }
       return { user: payload.user || payload, token: payload.token || null };
     } catch (error) {
+      console.error('authService.login error:', error);
+      console.error('Error response:', error.response);
+      console.error('Error status:', error.response?.status);
+      console.error('Error data:', error.response?.data);
       throw error;
     }
   },
@@ -88,34 +97,38 @@ export const authService = {
 
 // User services
 export const userService = {
-  getAll: () => api.get('/users/all'),
-  getById: (id) => api.get(`/users/${id}`),
-  create: (userData) => api.post('/users/create', userData),
-  update: (userData) => api.put('/users/update', userData),
-  delete: (id) => api.delete(`/users/delete/${id}`),
+  getAll: () => api.get('/api/users/all'),
+  getById: (id) => api.get(`/api/users/${id}`),
+  create: (userData) => api.post('/api/users/create', userData),
+  update: (userData) => api.put('/api/users/update', userData),
+  delete: (id) => api.delete(`/api/users/delete/${id}`),
+  deactivate: (id) => api.put(`/api/users/deactivate/${id}`),
+  reactivate: (id) => api.put(`/api/users/reactivate/${id}`),
 };
 
 // Book services
 export const bookService = {
-  getAll: () => api.get('/book/all'),
-  getById: (id) => api.get(`/book/${id}`),
+  getAll: () => api.get('/api/book'),
+  getById: (id) => api.get(`/api/book/${id}`),
   // create expects multipart/form-data for image uploads. Caller should use `api` directly or set form headers.
   // Let axios/browser set the Content-Type with boundary for multipart requests
-  create: (formData) => api.post('/book/create', formData),
-  update: (bookData) => api.put('/book/update', bookData),
-  delete: (id) => api.delete(`/book/delete/${id}`),
+  create: (formData) => api.post('/api/book/create', formData),
+  update: (bookId, bookData) => api.put(`/api/book/${bookId}`, bookData),
+  delete: (id) => api.delete(`/api/book/delete/${id}`),
   // backend doesn't currently expose advanced search endpoints; leave client-side filters for now
 };
 
 // Order services
 export const orderService = {
-  getAll: () => api.get('/orders'),
-  getById: (id) => api.get(`/orders/${id}`),
-  getByUserId: (userId) => api.get(`/orders/customer/${userId}`),
-  create: (orderData, userId) => api.post(`/orders/create?userId=${userId}`, orderData),
-  update: (orderData) => api.put('/orders/update', orderData),
-  cancel: (orderId) => api.put(`/orders/cancel/${orderId}`),
-  delete: (id) => api.delete(`/orders/delete/${id}`),
+  getAll: () => api.get('/api/orders'),
+  getById: (id) => api.get(`/api/orders/${id}`),
+  getByUserId: (userId) => api.get(`/api/orders/customer/${userId}`),
+  create: (orderData, userId) => api.post(`/api/orders/create?userId=${userId}`, orderData),
+  update: (orderData) => api.put('/api/orders/update', orderData),
+  updateStatus: (orderId, status) => api.put(`/api/orders/${orderId}/status`, { status: status.toUpperCase() }),
+  getStatuses: () => api.get('/api/orders/statuses'),
+  cancel: (orderId) => api.put(`/api/orders/cancel/${orderId}`),
+  delete: (id) => api.delete(`/api/orders/delete/${id}`),
 };
 
 // Order Item services
@@ -131,14 +144,14 @@ export const orderItemService = {
 
 // Payment services
 export const paymentService = {
-  getAll: () => api.get('/payments'),
-  getById: (id) => api.get(`/payments/${id}`),
+  getAll: () => api.get('/api/payments'),
+  getById: (id) => api.get(`/api/payments/${id}`),
   // backend exposes some payment-specific endpoints; use repository-style endpoints if available
-  create: (paymentData) => api.post('/payments/create', paymentData),
+  create: (paymentData) => api.post('/api/payments/create', paymentData),
   // process/refund/verify use different paths on backend; caller should use specific endpoints
-  process: (paymentId) => api.put(`/payments/process/${paymentId}`),
-  refund: (paymentId) => api.put(`/payments/refund/${paymentId}`),
-  verify: (paymentId) => api.get(`/payments/verify/${paymentId}`),
+  process: (paymentId) => api.put(`/api/payments/process/${paymentId}`),
+  refund: (paymentId) => api.put(`/api/payments/refund/${paymentId}`),
+  verify: (paymentId) => api.get(`/api/payments/verify/${paymentId}`),
 };
 
 // Contact services

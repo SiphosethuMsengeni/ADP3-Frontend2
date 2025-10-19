@@ -10,7 +10,6 @@ const Cart = () => {
     updateQuantity, 
     removeFromCart, 
     getCartSubtotal,
-    getStudentDiscount,
     getDiscountedTotal,
     getShippingCost,
     getFinalTotal,
@@ -40,55 +39,39 @@ const Cart = () => {
     const payload = {
       shippingAddress: user?.contact?.address || '',
       paymentMethod: 'CARD',
-  status: 'Pending',
-  orderTimestamp: new Date().toISOString(),
+      status: 'PENDING',
+      createdAt: new Date().toISOString(),
       totalAmount: getFinalTotal(user?.userType),
       items: cartItems.map(ci => ({
         quantity: ci.quantity,
         price: ci.price,
         book: { bookId: ci.bookId }
-      }))
+      })),
+      payment: {
+        amount: getFinalTotal(user?.userType),
+        status: 'Pending',
+        transactionCode: Math.random().toString(36).substring(2, 12),
+        paymentDate: new Date().toISOString()
+      }
     };
 
-    // Try to create order on backend; fallback to localStorage if backend unavailable
-    (async () => {
-      try {
-        await orderService.create(payload, user.userId);
-        clearCart();
-        navigate('/orders');
-      } catch (err) {
-        console.error('Backend order create failed:', err);
-        // If backend signals insufficient stock, show the message and do NOT clear the cart
-        const status = err?.response?.status;
-        const data = err?.response?.data;
-        if (status === 409) {
-          // Backend returns a human-friendly message like "Insufficient stock for book: <title>"
-          alert(`Order failed: ${data || 'Some items are unavailable in the requested quantities.'}`);
-          return;
+      // Only create order on backend; show error if backend fails
+      (async () => {
+        try {
+          await orderService.create(payload, user.userId);
+          clearCart();
+          navigate('/orders');
+        } catch (err) {
+          console.error('Backend order create failed:', err);
+          const status = err?.response?.status;
+          const data = err?.response?.data;
+          if (status === 409) {
+            alert(`Order failed: ${data || 'Some items are unavailable in the requested quantities.'}`);
+            return;
+          }
+          alert('Order could not be placed due to a server error. Please try again later.');
         }
-
-        // For any other error, fallback to localStorage behavior so user doesn't lose the order
-        console.warn('Falling back to localStorage order storage due to error.');
-        const existingOrders = JSON.parse(localStorage.getItem('snuggleReadOrders') || '[]');
-        const newOrder = {
-          orderId: Date.now().toString(),
-          userId: user.userId,
-          userEmail: user.userEmail,
-          items: cartItems,
-          subtotal: getCartSubtotal(),
-          discount: user?.userType === 'customer' ? getStudentDiscount() : 0,
-          shipping: getShippingCost(user?.userType),
-          total: getFinalTotal(user?.userType),
-          totalQuantity: getTotalQuantity(),
-          orderTimestamp: new Date().toISOString(),
-          status: 'confirmed'
-        };
-        existingOrders.push(newOrder);
-        localStorage.setItem('snuggleReadOrders', JSON.stringify(existingOrders));
-        clearCart();
-        navigate('/orders');
-      }
-    })();
+      })();
   };
 
   if (cartItems.length === 0) {
@@ -221,12 +204,7 @@ const Cart = () => {
               <span>Subtotal ({getTotalQuantity()} items):</span>
               <span>R{getCartSubtotal().toFixed(2)}</span>
             </div>
-            {user?.userType === 'customer' && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: '#27ae60' }}>
-                <span>Student Discount (5%):</span>
-                <span>-R{getStudentDiscount().toFixed(2)}</span>
-              </div>
-            )}
+
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
               <span>Shipping:</span>
               <span style={{ color: getShippingCost(user?.userType) === 0 ? '#27ae60' : '#333' }}>
@@ -270,10 +248,7 @@ const Cart = () => {
       <div className="card" style={{ marginTop: '2rem', background: 'linear-gradient(135deg, #e8f5e8, #f0f8ff)' }}>
         <h3>🎓 Student Benefits</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
-          <div>
-            <strong>✨ 5% Student Discount</strong>
-            <p>Automatically applied to all orders</p>
-          </div>
+
           <div>
             <strong>🚚 Free Shipping</strong>
             <p>On orders over R500</p>

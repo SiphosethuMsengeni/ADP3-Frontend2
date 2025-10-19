@@ -56,12 +56,12 @@ const Orders = () => {
           const storedOrders = JSON.parse(localStorage.getItem('snuggleReadOrders') || '[]');
           const userOrders = storedOrders.filter(o => o.userId === user?.userId);
           if (userOrders.length > 0) {
-            setOrders(userOrders.sort((a, b) => new Date(b.orderTimestamp || b.orderDate) - new Date(a.orderTimestamp || a.orderDate)));
+            setOrders(userOrders.sort((a, b) => new Date(b.createdAt || b.orderTimestamp || b.orderDate) - new Date(a.createdAt || a.orderTimestamp || a.orderDate)));
             return;
           }
         }
 
-        setOrders(enrichedOrders.sort((a, b) => new Date(b.orderTimestamp || b.orderDate) - new Date(a.orderTimestamp || a.orderDate)));
+        setOrders(enrichedOrders.sort((a, b) => new Date(b.createdAt || b.orderTimestamp || b.orderDate) - new Date(a.createdAt || a.orderTimestamp || a.orderDate)));
         return;
       } catch (err) {
         console.warn('Unable to fetch orders from backend, falling back to localStorage', err);
@@ -74,7 +74,7 @@ const Orders = () => {
       if (userOrders.length === 0 && user) {
         setOrders([]);
       } else {
-        setOrders(userOrders.sort((a, b) => new Date(b.orderTimestamp || b.orderDate) - new Date(a.orderTimestamp || a.orderDate)));
+        setOrders(userOrders.sort((a, b) => new Date(b.createdAt || b.orderTimestamp || b.orderDate) - new Date(a.createdAt || a.orderTimestamp || a.orderDate)));
       }
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -84,7 +84,10 @@ const Orders = () => {
   };
 
   const getStatusColor = (status) => {
-    switch (status) {
+    const statusLower = status?.toLowerCase();
+    switch (statusLower) {
+      case 'pending':
+        return '#95a5a6';
       case 'confirmed':
         return '#3498db';
       case 'processing':
@@ -101,7 +104,10 @@ const Orders = () => {
   };
 
   const getStatusIcon = (status) => {
-    switch (status) {
+    const statusLower = status?.toLowerCase();
+    switch (statusLower) {
+      case 'pending':
+        return '🕒';
       case 'confirmed':
         return '✅';
       case 'processing':
@@ -238,10 +244,10 @@ const Orders = () => {
                     Order #{order.orderId}
                   </h3>
                   <p style={{ margin: 0, color: '#7f8c8d' }}>
-                    📅 Placed on {formatDate(order.orderDate)}
+                    📅 Placed on {formatDate(order.createdAt)}
                   </p>
                   <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.8rem', color: '#95a5a6' }}>
-                    ⏱️ Order ID: {order.orderTimestamp || order.orderId} • 📦 {order.totalQuantity || order.items.reduce((sum, item) => sum + item.quantity, 0)} items
+                    ⏱️ Order ID: {order.createdAt || order.orderId} • 📦 {order.totalQuantity || order.items.reduce((sum, item) => sum + item.quantity, 0)} items
                   </p>
                 </div>
                 <div style={{ textAlign: 'right' }}>
@@ -396,7 +402,7 @@ const Orders = () => {
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '800px' }}>
             <h3>Order #{selectedOrder.orderId} Details</h3>
-            <p>Placed: {formatDate(selectedOrder.orderDate)}</p>
+            <p>Placed: {formatDate(selectedOrder.createdAt)}</p>
             <div>
               {selectedOrder.items.map((it, idx) => (
                 <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0', borderBottom: '1px solid #eee' }}>

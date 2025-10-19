@@ -60,8 +60,8 @@ const HomeEnhanced = () => {
                     <span>Free Campus Delivery</span>
                   </div>
                   <div className="feature-item">
-                    <img src={IconCart} alt="discounts" className="feature-icon" />
-                    <span>Student Discounts</span>
+                    <img src={IconCart} alt="quality" className="feature-icon" />
+                    <span>Quality Assured</span>
                   </div>
                   <div className="feature-item">
                     <img src={IconBook} alt="digital" className="feature-icon" />
@@ -70,7 +70,8 @@ const HomeEnhanced = () => {
                 </div>
               </div>
               <div className="hero-image">
-                <img src="/images/hero-books.jpg" alt="University Books" />
+                {/* hero-books.jpg was missing from public/images; use existing bookshelf-small.jpg to avoid proxy errors */}
+                <img src="/images/bookshelf-small.jpg" alt="University Books" />
               </div>
             </div>
           </div>
@@ -151,7 +152,7 @@ const HomeEnhanced = () => {
             <div className="specialty-item">
               <div className="specialty-icon"><img src={IconStar} alt="student benefits" /></div>
               <h4>Student Benefits</h4>
-              <p>Exclusive student discounts, flexible payment options, textbook rental programs, and special academic pricing.</p>
+              <p>Flexible payment options, textbook rental programs, and special academic pricing for students.</p>
             </div>
           </div>
         </div>

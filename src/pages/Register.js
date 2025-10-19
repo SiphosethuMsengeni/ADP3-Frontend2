@@ -177,15 +177,11 @@ const Register = () => {
       const registrationData = {
         userFirstName: formData.userFirstName,
         userLastName: formData.userLastName,
-        userEmail: formData.userEmail,
-        userPassword: formData.userPassword,
-        userPhoneNumber: formData.userPhoneNumber,
-        studentNumber: formData.studentNumber,
+        password: formData.userPassword,  // Fixed: backend expects 'password', not 'userPassword'
         contact: {
           email: formData.userEmail,
           phoneNumber: formData.userPhoneNumber,
-          address: formData.address,
-          password: formData.userPassword
+          address: formData.address
         }
       };
 
@@ -384,7 +380,7 @@ const Register = () => {
         }}>
           <h4 style={{ marginBottom: '1rem', color: '#27ae60' }}>🎁 Student Benefits</h4>
           <div style={{ fontSize: '0.9rem', lineHeight: '1.6' }}>
-            ✅ 5% automatic student discount on all purchases<br />
+
             📚 Access to exclusive academic titles<br />
             🚚 Free shipping on orders over R500<br />
             📱 Digital access to select e-books<br />
