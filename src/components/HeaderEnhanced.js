@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import './HeaderEnhanced.css';
-import logo from '../assets/logo.svg';
 
 const HeaderEnhanced = () => {
   const { user, logout } = useAuth();
@@ -30,10 +29,15 @@ const HeaderEnhanced = () => {
             </span>
           </div>
           <div className="top-nav-right">
+            <Link to="/books" className="nav-link browse-link">
+              📘 Browse Books
+            </Link>
+
             <div className="contact-info">
               <span>📞 +27 21 460 3911</span>
               <span>✉️ info@snuggleread.ac.za</span>
             </div>
+
             {user ? (
               <div className="user-menu">
                 <span>Welcome, {user.userFirstName || user.firstName}</span>
@@ -55,13 +59,15 @@ const HeaderEnhanced = () => {
         <div className="container">
           <div className="nav-left">
             <Link to="/" className="logo">
-              {logoLoaded && (
+              {logoLoaded ? (
                 <img
-                  src={logo}
-                  alt="Snuggle Read"
-                  className="logo-img"
+                  src="/BookIcon.png"
+                  alt="Snuggle Read Logo"
+                  className="book-logo-icon"
                   onError={() => setLogoLoaded(false)}
                 />
+              ) : (
+                <span className="logo-text">Snuggle Read</span>
               )}
               <span className="logo-text">Snuggle Read</span>
             </Link>
@@ -80,18 +86,21 @@ const HeaderEnhanced = () => {
 
           <div className="nav-center">
             <nav id="main-menu" className={`main-menu ${menuOpen ? 'open' : ''}`}>
-              <Link to="/" className="nav-item">Home</Link>
+              <Link to="/" className="nav-item" onClick={() => setMenuOpen(false)}>Home</Link>
               {user?.role && user.role.toUpperCase() === 'ADMIN' ? (
                 <>
                   <Link to="/admin" className="nav-item">Manager Dashboard</Link>
                   <Link to="/admin/orders" className="nav-item">Manage Orders</Link>
                 </>
               ) : (
-                <Link to="/books" className="nav-item">Shop Books</Link>
+                <Link to="/books" className="nav-item" onClick={() => setMenuOpen(false)}>
+                  Shop Books
+                </Link>
               )}
               <Link to="/about" className="nav-item" onClick={() => setMenuOpen(false)}>About</Link>
               <Link to="/contact" className="nav-item" onClick={() => setMenuOpen(false)}>Contact</Link>
-              <Link to="/orders" className="nav-item">My Orders</Link>
+              <Link to="/orders" className="nav-item" onClick={() => setMenuOpen(false)}>My Orders</Link>
+
               {user?.isAdmin && (
                 <Link
                   to="/admin"
@@ -104,7 +113,7 @@ const HeaderEnhanced = () => {
             </nav>
           </div>
 
-          {/* === Cart Icon / Admin Button === */}
+          {/* === Cart / Admin Button === */}
           <div className="nav-right">
             {user?.role && user.role.toUpperCase() === 'ADMIN' ? (
               <Link to="/admin" className="add-book-btn" title="Manager: Add Book" />

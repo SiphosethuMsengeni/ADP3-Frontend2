@@ -12,9 +12,10 @@
 
 /* Top Navigation Bar */
 .top-nav {
-  background: linear-gradient(135deg, #ff7b00 0%, #ffb347 100%);
-  color: #fff;
-  padding: 6px 0;
+  background: linear-gradient(135deg, var(--primary-dark, #ff7b00) 0%, var(--primary, #ffb347) 100%);
+  color: white;
+  font-size: 0.85rem;
+  padding: 8px 0;
 }
 
 .top-nav .container {
@@ -25,6 +26,25 @@
   margin: 0 auto;
   padding: 0 20px;
   flex-wrap: wrap;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+}
+
+.book-logo-icon {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+.logo-text {
+  color: orange;
+  font-size: 1.5rem;
+  font-weight: bold;
 }
 
 .welcome-text {
@@ -46,32 +66,39 @@
   font-size: 0.8rem;
 }
 
+.user-menu,
+.auth-links {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: color 0.3s;
+}
+
+.nav-link:hover {
+  color: var(--accent, #ffd27f);
+}
+
 /* Logout & Auth Buttons */
 .logout-btn {
-  padding: 6px 12px;
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 4px 12px;
+  border-radius: 4px;
   cursor: pointer;
-  font-size: 0.85rem;
-  background: linear-gradient(135deg, #ff8c00, #ff6600);
-  color: #fff;
-  border: none;
-  transition: all 0.15s ease;
+  font-size: 0.8rem;
+  transition: background 0.3s;
 }
 
 .logout-btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(230, 126, 34, 0.15);
-}
-
-.nav-link {
-  color: #fff;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.2s ease;
-}
-
-.nav-link:hover {
-  color: #ffd27f;
 }
 
 /* =========================

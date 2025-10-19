@@ -1,16 +1,68 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
 import './HomeEnhanced.css';
+
 import IconBook from '../assets/icons/book.svg';
 import IconCart from '../assets/icons/cart.svg';
 import IconDelivery from '../assets/icons/delivery.svg';
 import IconStar from '../assets/icons/star.svg';
-import { useState } from "react";
 
 const HomeEnhanced = () => {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
+  
+  const [stats, setStats] = useState({
+    totalBooks: 0,
+    totalUsers: 0,
+    universities: 0,
+    years: 15,
+  });
+
+  
+  const genreImages = [
+    '/Student.jpg',
+    '/LibraryPicture1.jpg',
+    '/LibraryPicture2.jpg',
+    '/books-blog-image.jpg'
+  ];
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const booksResponse = await api.get('/book/all');
+        setStats({
+          totalBooks: booksResponse.data?.length || 200,
+          totalUsers: 1250,
+          universities: 500,
+          years: 15,
+        });
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+        setStats({
+          totalBooks: 200,
+          totalUsers: 1250,
+          universities: 500,
+          years: 15,
+        });
+      }
+    };
+    fetchStats();
+  }, []);
+
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % genreImages.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [genreImages.length]);
+
+  
   const featuredGenres = [
     { name: 'Academic', icon: IconBook, description: 'Essential textbooks and academic resources' },
     { name: 'Fiction', icon: IconBook, description: 'Captivating stories and novels' },
@@ -18,154 +70,93 @@ const HomeEnhanced = () => {
     { name: 'Technology', icon: IconStar, description: 'Latest in tech and programming' }
   ];
 
-  const stats = [
-    { number: '50,000+', label: 'Books Available' },
-    { number: '25,000+', label: 'Happy Students' },
-    { number: '500+', label: 'Universities Served' },
-    { number: '15+', label: 'Years of Excellence' }
-  ];
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  const toggleMobileMenu = () => setMobileMenuOpen(open => !open);
-
   return (
     <div className="home-enhanced">
-      {/* Hero Section */}
-      <section className="hero-section">
-        <div className="hero-background">
-          <div className="hero-overlay"></div>
-          <div className="container">
-            <div className="hero-content">
-              <div className="hero-text">
-                <h1 className="hero-title">
-                  Welcome to <span className="brand-highlight">Snuggle Read</span>
-                </h1>
-                <p className="hero-subtitle">
-                  Your Premier University E-Commerce Bookstore
-                </p>
-                <p className="hero-description">Your cozy university bookstore — where learning meets comfort! Discover academic and leisure books to fuel your journey.</p>
-                <div className="hero-actions">
-                  <Link to="/books" className="cta-button primary">
-                    Explore Books
-                  </Link>
-                  {!user && (
-                    <Link to="/register" className="cta-button secondary">
-                      Join Now
-                    </Link>
-                  )}
-                </div>
-                <div className="hero-features">
-                  <div className="feature-item">
-                    <img src={IconDelivery} alt="delivery" className="feature-icon" />
-                    <span>Free Campus Delivery</span>
-                  </div>
-                  <div className="feature-item">
-                    <img src={IconCart} alt="quality" className="feature-icon" />
-                    <span>Quality Assured</span>
-                  </div>
-                  <div className="feature-item">
-                    <img src={IconBook} alt="digital" className="feature-icon" />
-                    <span>Digital & Physical Books</span>
-                  </div>
-                </div>
+      {/* === HERO SECTION WITH SLIDESHOW === */}
+      <section
+        className="hero-section"
+        style={{
+          backgroundImage: `url(${genreImages[currentSlide]})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          transition: 'background-image 1s ease-in-out',
+        }}
+      >
+        <div className="hero-overlay"></div>
+        <div className="container">
+          <div className="hero-content">
+            <div className="hero-text">
+              <h1 className="hero-title">
+                Welcome to <span className="brand-highlight">Snuggle Read</span>
+              </h1>
+              <p className="hero-subtitle">
+                Your Premier University E-Commerce Bookstore
+              </p>
+              <p className="hero-description">
+                Discover academic and leisure books to fuel your journey.
+              </p>
+              <div className="hero-actions">
+                <Link to="/books" className="cta-button primary">Explore Books</Link>
+                {!isAuthenticated() && (
+                  <Link to="/register" className="cta-button secondary">Join Now</Link>
+                )}
               </div>
-              <div className="hero-image">
-                {/* hero-books.jpg was missing from public/images; use existing bookshelf-small.jpg to avoid proxy errors */}
-                <img src="/images/bookshelf-small.jpg" alt="University Books" />
+              <div className="hero-features">
+                <div className="feature-item">
+                  <img src={IconDelivery} alt="delivery" className="feature-icon" />
+                  <span>Free Campus Delivery</span>
+                </div>
+                <div className="feature-item">
+                  <img src={IconCart} alt="quality" className="feature-icon" />
+                  <span>Quality Assured</span>
+                </div>
+                <div className="feature-item">
+                  <img src={IconBook} alt="digital" className="feature-icon" />
+                  <span>Digital & Physical Books</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Vision & Mission Section */}
+      {/* === ABOUT / VISION / MISSION === */}
       <section className="vision-mission-section">
         <div className="container">
           <div className="section-header">
             <h2>About Snuggle Read</h2>
             <p>Empowering Education Through Knowledge</p>
           </div>
-          
           <div className="vision-mission-grid">
-              <div className="vision-card">
-              <div className="card-icon"><img src={IconStar} alt="vision"/></div>
+            <div className="vision-card">
+              <div className="card-icon"><img src={IconStar} alt="vision" /></div>
               <h3>Our Vision</h3>
               <p>
-                To be the leading university bookstore that bridges the gap between 
-                students and knowledge, making quality educational resources accessible 
+                To be the leading university bookstore that bridges the gap between
+                students and knowledge, making quality educational resources accessible
                 to every learner across South Africa and beyond.
               </p>
             </div>
-            
-              <div className="mission-card">
-              <div className="card-icon"><img src={IconStar} alt="mission"/></div>
+            <div className="mission-card">
+              <div className="card-icon"><img src={IconStar} alt="mission" /></div>
               <h3>Our Mission</h3>
               <p>
-                We provide a comprehensive e-commerce platform offering academic books, 
-                textbooks, and educational materials to university students, faculty, 
-                and researchers, with exceptional service and competitive prices.
+                We provide a comprehensive e-commerce platform offering academic books,
+                textbooks, and educational materials to students, faculty, and researchers,
+                with exceptional service and competitive prices.
               </p>
             </div>
-            
-              <div className="values-card">
-              <div className="card-icon"><img src={IconStar} alt="values"/></div>
-              <h3>Our Values</h3>
-              <ul>
-                <li><img src={IconBook} alt="book" className="inline-icon"/> Academic Excellence</li>
-                <li><img src={IconStar} alt="service" className="inline-icon"/> Student-First Service</li>
-                <li><img src={IconStar} alt="innovation" className="inline-icon"/> Innovation in Learning</li>
-                <li><img src={IconStar} alt="access" className="inline-icon"/> Accessibility for All</li>
-                <li><img src={IconStar} alt="trust" className="inline-icon"/> Trust & Reliability</li>
-              </ul>
-            </div>
           </div>
         </div>
       </section>
 
-      {/* What Makes Us Special */}
-      <section className="specialty-section">
-        <div className="container">
-          <div className="section-header">
-            <h2>What Makes Snuggle Read Special?</h2>
-            <p>Your University E-Commerce Bookstore Experience</p>
-          </div>
-          
-          <div className="specialty-grid">
-            <div className="specialty-item">
-              <div className="specialty-icon"><img src={IconBook} alt="academic" /></div>
-              <h4>University Focused</h4>
-              <p>Specifically curated for university students, faculty, and academic institutions with specialized collections for different fields of study.</p>
-            </div>
-            
-            <div className="specialty-item">
-              <div className="specialty-icon"><img src={IconCart} alt="easy shopping" /></div>
-              <h4>E-Commerce Excellence</h4>
-              <p>Seamless online shopping experience with advanced search, filtering, and recommendation systems tailored for academic needs.</p>
-            </div>
-            
-            <div className="specialty-item">
-              <div className="specialty-icon"><img src={IconDelivery} alt="multi-campus" /></div>
-              <h4>Multi-Campus Reach</h4>
-              <p>Serving multiple universities and campuses across South Africa with localized inventory and campus-specific collections.</p>
-            </div>
-            
-            <div className="specialty-item">
-              <div className="specialty-icon"><img src={IconStar} alt="student benefits" /></div>
-              <h4>Student Benefits</h4>
-              <p>Flexible payment options, textbook rental programs, and special academic pricing for students.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Genres */}
+      {/* === FEATURED GENRES === */}
       <section className="featured-genres-section">
         <div className="container">
           <div className="section-header">
             <h2>Explore Our Book Categories</h2>
             <p>Discover knowledge across all disciplines</p>
           </div>
-          
           <div className="genres-grid">
             {featuredGenres.map((genre, index) => (
               <Link to={`/books?genre=${genre.name}`} key={index} className="genre-card">
@@ -179,31 +170,41 @@ const HomeEnhanced = () => {
         </div>
       </section>
 
-      {/* Statistics Section */}
+      {/* === STATS SECTION (Dynamic) === */}
       <section className="stats-section">
         <div className="container">
           <div className="stats-grid">
-            {stats.map((stat, index) => (
-              <div key={index} className="stat-item">
-                <div className="stat-number">{stat.number}</div>
-                <div className="stat-label">{stat.label}</div>
-              </div>
-            ))}
+            <div className="stat-item">
+              <div className="stat-number">{stats.totalBooks}+</div>
+              <div className="stat-label">Books Available</div>
+            </div>
+            <div className="stat-item">
+              <div className="stat-number">{stats.totalUsers}+</div>
+              <div className="stat-label">Happy Students</div>
+            </div>
+            <div className="stat-item">
+              <div className="stat-number">{stats.universities}+</div>
+              <div className="stat-label">Universities Served</div>
+            </div>
+            <div className="stat-item">
+              <div className="stat-number">{stats.years}+</div>
+              <div className="stat-label">Years of Excellence</div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Call to Action */}
+      {/* === CTA SECTION === */}
       <section className="cta-section">
         <div className="container">
           <div className="cta-content">
             <h2>Ready to Start Your Learning Journey?</h2>
-            <p>Join thousands of students who trust Snuggle Read for their academic needs</p>
+            <p>Join thousands of students who trust Snuggle Read for their academic needs.</p>
             <div className="cta-actions">
               <Link to="/books" className="cta-button primary large">
                 Browse Books Now
               </Link>
-              {!user && (
+              {!isAuthenticated() && (
                 <Link to="/register" className="cta-button secondary large">
                   Create Account
                 </Link>
